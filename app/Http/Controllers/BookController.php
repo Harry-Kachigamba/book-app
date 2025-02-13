@@ -5,11 +5,6 @@ namespace App\Http\Controllers;
 use App\Models\Book;
 use Illuminate\Http\Request;
 
-
-Route::middleware('auth:sactum')->group(function () {
-    Route::apiResource('books', BookController::class);
-});
-
 class BookController extends Controller
 {
     public function index() {
