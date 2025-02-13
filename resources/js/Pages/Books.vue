@@ -1,3 +1,68 @@
+<script setup>
+import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
+import { ref, onMounted } from 'vue';
+import axios from 'axios';
+
+const books = ref([]);
+const showCreateModal = ref(false);
+const showEditModal = ref(false);
+const isEditing = ref(false);
+const form = ref({
+    id: null,
+    title: '',
+    author: '',
+    published_year: '',
+    genre: ''
+});
+
+onMounted(() => {
+    fetchBooks();
+});
+
+const fetchBooks = async () => {
+    const response = await axios.get('/api/books');
+    books.value = response.data;
+};
+
+const createBook = async () => {
+    await axios.post('/api/books', form.value);
+    closeModal();
+    await fetchBooks();
+};
+
+const editBook = (book) => {
+    form.value = { ...book };
+    isEditing.value = true;
+    showEditModal.value = true;
+};
+
+const updateBook = async () => {
+    await axios.put(`/api/books/${form.value.id}`, form.value);
+    closeModal();
+    await fetchBooks();
+};
+
+const deleteBook = async (id) => {
+    if (confirm('Are you sure you want to delete this book?')) {
+        await axios.delete(`/api/books/${id}`);
+        await fetchBooks();
+    }
+};
+
+const closeModal = () => {
+    showCreateModal.value = false;
+    showEditModal.value = false;
+    isEditing.value = false;
+    form.value = {
+        id: null,
+        title: '',
+        author: '',
+        published_year: '',
+        genre: ''
+    };
+};
+</script>
+
 <template>
     <AuthenticatedLayout>
         <template #header>
@@ -73,67 +138,3 @@
     </AuthenticatedLayout>
 </template>
 
-<script setup>
-import AuthenticatedLayout from '@/Layouts/AuthenticatedLayout.vue';
-import { ref, onMounted } from 'vue';
-import axios from 'axios';
-
-const books = ref([]);
-const showCreateModal = ref(false);
-const showEditModal = ref(false);
-const isEditing = ref(false);
-const form = ref({
-    id: null,
-    title: '',
-    author: '',
-    published_year: '',
-    genre: ''
-});
-
-onMounted(() => {
-    fetchBooks();
-});
-
-const fetchBooks = async () => {
-    const response = await axios.get('/api/books');
-    books.value = response.data;
-};
-
-const createBook = async () => {
-    await axios.post('/api/books', form.value);
-    closeModal();
-    await fetchBooks();
-};
-
-const editBook = (book) => {
-    form.value = { ...book };
-    isEditing.value = true;
-    showEditModal.value = true;
-};
-
-const updateBook = async () => {
-    await axios.put(`/api/books/${form.value.id}`, form.value);
-    closeModal();
-    await fetchBooks();
-};
-
-const deleteBook = async (id) => {
-    if (confirm('Are you sure you want to delete this book?')) {
-        await axios.delete(`/api/books/${id}`);
-        await fetchBooks();
-    }
-};
-
-const closeModal = () => {
-    showCreateModal.value = false;
-    showEditModal.value = false;
-    isEditing.value = false;
-    form.value = {
-        id: null,
-        title: '',
-        author: '',
-        published_year: '',
-        genre: ''
-    };
-};
-</script>
